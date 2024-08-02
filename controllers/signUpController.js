@@ -37,11 +37,17 @@ export const signup = async (req, res) => {
             await newUser.save();
             console.log('new user saved');
             generateTokenAndSetCookie(newUser._id, res);
-            res.status(201).json({ message: "User created successfully", user: newUser });
+            res.status(201).json({ message: "User created successfully", user: {
+                _id: newUser._id,
+                fullName: newUser.fullName,
+                userName: newUser.userName,
+                gender: newUser.gender,
+                profilepic: newUser.profilepic
+            } });
         }
 
     } catch (error) {
         console.log("Error signing up", error);
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({ error: "Internal server error" });
     }
 };
