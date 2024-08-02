@@ -8,6 +8,7 @@ import messageRoutes from "./routes/messageRoutes.js"
 import userRoutes from "./routes/userRoutes.js"
 import { connectToDb } from "./db/connectToDb.js";
 import { protectRoute } from "./middlewares/protectRoute.js";
+import cors from "cors"
 
 const app = express();
 dotenv.config();
@@ -16,6 +17,11 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+    sameSite: "strict"
+}));
 
 app.use("/api/auth", authRoutes);
 app.use('/api/messages', protectRoute, messageRoutes);
