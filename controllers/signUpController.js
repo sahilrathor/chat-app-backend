@@ -10,12 +10,13 @@ export const signup = async (req, res) => {
         }
 
         if (password !== confirmPassword) {
-            return res.status(400).json({ message: "Passwords do not match" });
+            return res.status(200).json({ error: "Passwords do not match" });
         }
 
         const user = await User.findOne({ userName });
         if (user) {
-            return res.status(400).json({ message: "User already exists" });
+            console.log('user already exists');
+            return res.status(200).json({ error: "User already exists" });
         }
 
         const salt = await bcrypt.genSalt(10);
@@ -35,7 +36,7 @@ export const signup = async (req, res) => {
         if (newUser) {
 
             await newUser.save();
-            console.log('new user saved');
+            console.log('new user saved', newUser);
             generateTokenAndSetCookie(newUser._id, res);
             res.status(201).json({ message: "User created successfully", user: {
                 _id: newUser._id,
