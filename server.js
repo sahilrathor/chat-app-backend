@@ -29,7 +29,7 @@ app.use('/api/users', protectRoute, userRoutes);
 
 
 app.get("/", (req, res) => {
-    res.send("Hello World");
+    res.status(200).json({message: "Hi!!, Chat app server is running here"});
 });
 
 app.listen(PORT, () => {

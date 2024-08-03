@@ -1,6 +1,6 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
-
+import generateTokenAndSetCookie from "../utils/generateJWT.js";
 export const login = async (req, res) => {
     try {
         const {userName, password} = req.body;
@@ -9,7 +9,6 @@ export const login = async (req, res) => {
         if (!user || !isPasswordCorrect) {
             return res.status(400).json({message: "Invalid credentials"});
         }
-
         
         generateTokenAndSetCookie(user._id, res);
         res.status(200).json({message: "User logged in successfully", user: user});
