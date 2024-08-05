@@ -12,7 +12,7 @@ import { app, server } from "./socket/socket.js";
 import cors from "cors"
 
 // const app = express();
-const PORT = process.env.PORTs || 5000;
+const PORT = process.env.PORT || 5000;
 dotenv.config();
 
 app.use(express.json());
