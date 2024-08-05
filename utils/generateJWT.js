@@ -6,7 +6,7 @@ const generateTokenAndSetCookie = (userId, res) => {
     })
 
     res.cookie("jwt", token, {
-        maxage: 7 * 24 * 60 * 60 * 1000, //milliseconds
+        maxAge: 7 * 24 * 60 * 60 * 1000, //milliseconds
         httpOnly: true,  // prevents XXS attack (cross-site scripting attacts)
         sameSite: 'strict',  // prevents CSRF(cross site request forget) attact
         secure: process.env.NODE_ENV !== "development"
