@@ -1,9 +1,59 @@
+// import Message from "../../models/messageModel.js";
+// import Conversation from "../../models/conversationModel.js";
+// import { io } from "../../socket/socket.js";
+// import { getReceiverSocketId } from "../../socket/socket.js";
+
+// export const sendMessage = async (req, res) => {
+//     try {
+//         const {id: receiverId} = req.params;
+//         const {message} = req.body;
+//         const senderId = req.user._id;
+
+//         let conversation = await Conversation.findOne({
+//             participants: { $all: [senderId, receiverId] }
+//         })
+
+//         if(!conversation){
+//             conversation = await Conversation.create({
+//                 participants: [senderId, receiverId]
+//             })
+//         }
+
+//         const newMessage = new Message({
+//             senderId,
+//             receiverId,
+//             message
+//         })
+        
+//         if(newMessage){
+//             conversation.messages.push(newMessage._id);
+//         }
+
+//         await Promise.all([newMessage.save(), conversation.save()]);
+        
+//         //  WEB SOCKET (SEND MSG TO RECEIVER)
+//         const receiverSocketId = getReceiverSocketId(receiverId);
+//         if(receiverSocketId) {
+//         io.to(receiverSocketId).emit('newMessage', newMessage)
+//         }
+
+
+//         res.status(200).json(newMessage);
+
+//     } catch (err) {
+//         console.log(`send msg error: ${err.message}`);
+//         res.status(500).json({error: 'Server error'})
+//     }
+// }
+
+
 import Message from "../../models/messageModel.js";
 import Conversation from "../../models/conversationModel.js";
+import { io } from "../../socket/socket.js";
+import { getReceiverSocketId } from "../../socket/socket.js";
 
 export const sendMessage = async (req, res) => {
     try {
-
         const { id: receiverId } = req.params;
         const { message } = req.body;
         const senderId = req.user._id;
@@ -11,46 +61,40 @@ export const sendMessage = async (req, res) => {
         // CHECK IF CONVERSATION EXISTS
         let conversation = await Conversation.findOne({
             members: { $all: [senderId, receiverId] }
-        })
+        });
 
         // IF CONVERSATION DOESN'T EXIST, CREATE A NEW ONE
         if (!conversation) {
             conversation = await Conversation.create({
                 members: [senderId, receiverId]
-            })
+            });
         }
 
-        const newMessage = Message({
+        const newMessage = new Message({
             senderId,
             receiverId,
             message
-        })
+        });
 
         if (newMessage) {
             conversation.messages.push(newMessage._id);
         }
 
-            // SAVES NEW MESSAGE AND CONVERSATION
-            await Promise.all([
-                newMessage.save(),
-                conversation.save()
-            ])
+        // SAVES NEW MESSAGE AND CONVERSATION
+        await Promise.all([
+            newMessage.save(),
+            conversation.save()
+        ]);
 
-            // WEB SOCKET HERE
-            // 
+        // WebSocket - Send message to receiver
+        const receiverSocketId = getReceiverSocketId(receiverId);
+        if (receiverSocketId) {
+            io.to(receiverSocketId).emit('newMessage', newMessage);
+        }
 
-            res.status(200).json({
-                success: true,
-                message: "Message sent successfully",
-                newMessage
-            })
-
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: "Error sending message",
-            error: error.message
-        })
-        console.log('Error sending message', error);
+        res.status(200).json(newMessage);
+    } catch (err) {
+        console.log(`send msg error: ${err.message}`);
+        res.status(500).json({ error: 'Server error' });
     }
-}
+};

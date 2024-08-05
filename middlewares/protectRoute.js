@@ -3,42 +3,30 @@ import User from "../models/userModel.js";
 
 export const protectRoute = async (req, res, next) => {
     try {
-        const token = req.cookies.jwt;
-        if (!token) {
-            return res.status(401).json({
-                success: false,
-                message: "Token not found"
-            })
+        const token = req.cookies.token;
+
+        if(!token) {
+            return res.status(404).json({error: "no token found"})
         }
 
-        // VERIFY TOKEN
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        if (!decoded) {
-            return res.status(401).json({
-                success: false,
-                message: "Invalid token"
-            })
+
+        if(!decoded){
+            return res.status(404).json({error: "unauthorized token"})
         }
 
-        // FIND USER BY ID
-        const user = await User.findById(decoded.userId).select("-password");
-        if (!user) {
-            return res.status(401).json({
-                success: false,
-                message: "User not found"
-            })
+        const user = await User.findById(decoded.userId).select('-password')
+
+        if(!user){
+            return res.status(404).json({error: "user not found"})
         }
-        
+
         req.user = user;
-        
+
         next();
 
-    } catch (error) {
-        console.log('Error protecting route', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error protecting route',
-            error: error.message
-        })
+    } catch (err) {
+        console.log(`authorization error: ${err.message}`)
+        res.status(404).json({error: "server error"})
     }
 }
