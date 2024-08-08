@@ -22,6 +22,7 @@ export const sendMessage = async (req, res) => {
         }
 
         const newMessage = new Message({
+            senderName: req.user.fullName,
             senderId,
             receiverId,
             message
