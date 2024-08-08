@@ -23,6 +23,7 @@ app.use(cors({
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE'
 }));
+// app.use(cors());
 
 app.use("/api/auth", authRoutes);
 app.use('/api/messages', protectRoute, messageRoutes);

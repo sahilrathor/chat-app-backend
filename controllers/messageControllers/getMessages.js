@@ -46,7 +46,6 @@ export const getMessages = async (req, res) => {
             return res.status(200).json([]);
         }
 
-        console.log('conversation: ', conversation);
         return res.status(200).json(conversation.messages);
     } catch (err) {
         console.log(`get msg error: ${err.message}`);
